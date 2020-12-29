@@ -3,8 +3,7 @@ import { getHashElements, getHash } from "./crypt";
 
 const Block = ({ blockdata, children, setChildBlock, childBlock }) => {
   let hashClass = "text-center mx-3 ";
-  let cardClass =
-    "card text-center col-md-6 my-5 p-0 shadow mb-5 bg-white rounded ";
+  let cardClass = "card text-center col-md-6 my-5 p-0 shadow mb-5 rounded ";
   console.log(blockdata);
   let isChanged = !blockdata.curr.startsWith("0000");
   if (isChanged) {
@@ -52,7 +51,9 @@ const Block = ({ blockdata, children, setChildBlock, childBlock }) => {
 
   return (
     <div className={cardClass}>
-      <div className="card-header">Block ID : {blockdata.id}</div>
+      <div className="card-footer ">
+        <strong>Block ID : {blockdata.id}</strong>
+      </div>
       <div className="card-body">
         <div className="d-flex justify-content-between align-items-center mb-2">
           <div className=" card-text">Data</div>
@@ -75,7 +76,7 @@ const Block = ({ blockdata, children, setChildBlock, childBlock }) => {
           <small className={hashClass}>{blockdata.prev}</small>
         </div>
       </div>
-      <div className="card-footer ">
+      <div className="card-header ">
         <div className="d-flex justify-content-between align-items-center">
           {isChanged && (
             <div className="p-2 mining">
