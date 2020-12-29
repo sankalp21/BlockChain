@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import Block from "./Block";
 import SvgIcon from "./SvgIcon";
 import { getHashElements } from "./crypt";
+import chain from "./chain.png";
 
 const intialBlock = getHashElements(0, "Welcome to Block Chain Demo", 0);
 const MAX_BLOCK = 10;
@@ -48,8 +49,8 @@ const BlockChainDemo = () => {
   return (
     <div>
       {blockArray.map((block, index) => {
-        if (block)
-          return (
+        return (
+          <div>
             <div className="row mx-5">
               <div className="col-md-3"></div>
               <Block
@@ -60,9 +61,11 @@ const BlockChainDemo = () => {
               />
               <div className="col-md-3"></div>
             </div>
-          );
-
-        return <div></div>;
+            <div className="text-center">
+              <img src={chain} alt="chain" height="90px"></img>
+            </div>
+          </div>
+        );
       })}
       {blockArray.length <= MAX_BLOCK ? (
         <div className="row m-5">
