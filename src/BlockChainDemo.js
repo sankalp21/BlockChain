@@ -1,33 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Block from "./Block";
 import SvgIcon from "./SvgIcon";
-import { getHash } from "./crypt";
+import { getHashElements } from "./crypt";
+
+const intialBlock = getHashElements(0, "Welcome to Block Chain Demo", 0);
+const MAX_BLOCK = 10;
 const BlockChainDemo = () => {
-  const [blockArray, setBlockArray] = useState([]);
-  const [hashArray, setHashArray] = useState([]);
-  const blockData = (id, data, nonce, isChanged) => {
+  const [blockArray, setBlockArray] = useState([
+    {
+      id: 0,
+      data: "Welcome to Block Chain Demo",
+      nonce: intialBlock.nonce,
+      prev: 0,
+      curr: intialBlock.hash,
+    },
+  ]);
+  const inputRef = useRef();
+  const blockData = (id, data, nonce, prev, curr) => {
     return {
       id: id,
       data: data,
-      isChanged: isChanged,
       nonce: nonce,
+      prev: prev,
+      curr: curr,
     };
   };
   const pushBlock = (data) => {
-    let currentHash;
-    if (!hashArray) {
-      currentHash = "000000000000000000000000000000000000000000";
-      setHashArray(() => [currentHash]);
-      setBlockArray(() => [null]);
-    } else if (hashArray.length <= 10) {
-      let id = hashArray.length;
-      let prev = hashArray[id - 1];
-      currentHash = getHash(id, data, prev);
-      let block = blockData(id, data, currentHash.nonce, false);
-      setHashArray(() => [...hashArray, currentHash.hash]);
+    if (!data) return;
+    let currentHashElements;
+    if (blockArray.length <= MAX_BLOCK) {
+      let id = blockArray.length;
+      let prev = blockArray[id - 1].curr;
+      currentHashElements = getHashElements(id, data, prev);
+      let block = blockData(
+        id,
+        data,
+        currentHashElements.nonce,
+        prev,
+        currentHashElements.hash
+      );
       setBlockArray(() => [...blockArray, block]);
+      inputRef.current.focus();
+      inputRef.current.scrollIntoView();
     }
   };
+
   return (
     <div>
       {blockArray.map((block, index) => {
@@ -35,16 +52,11 @@ const BlockChainDemo = () => {
           return (
             <div className="row mx-5">
               <div className="col-md-3"></div>
-
               <Block
                 key={index}
-                blockId={index}
-                data={block.data}
-                hash={hashArray[index]}
-                prev={hashArray[index - 1]}
-                nonce={block.nonce}
-                isChanged={block.isChanged}
-                className="card text-center col-md-6 my-5 p-0 border-primary"
+                blockdata={block}
+                setChildBlock={setBlockArray}
+                childBlock={blockArray}
               />
               <div className="col-md-3"></div>
             </div>
@@ -52,18 +64,27 @@ const BlockChainDemo = () => {
 
         return <div></div>;
       })}
-
-      <div
-        className="d-flex justify-content-center"
-        onClick={() => pushBlock("Welcome To BlockChain Demo")}
-      >
-        <SvgIcon
-          height="35"
-          width="35"
-          className="bi bi-plus-square-fill"
-          fillColor="#0000ff"
-        />
-      </div>
+      {blockArray.length <= MAX_BLOCK ? (
+        <div className="row m-5">
+          <div className="col-md-3"></div>
+          <div className="card col-md-6 border-primary shadow p-3 mb-5 bg-white rounded">
+            <div className="card-body">
+              <input ref={inputRef} className="form-control m-3" />
+              <div onClick={() => pushBlock(inputRef.current.value)}>
+                <SvgIcon
+                  height="35"
+                  width="35"
+                  className="text-center bi bi-plus-square-fill container-fluid"
+                  fillColor="#0000ff"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3"></div>
+        </div>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 };
