@@ -1,11 +1,11 @@
 import React from "react";
 import { getHashElements, getHash } from "./crypt";
 
-const Block = ({ blockdata, children, setChildBlock, childBlock }) => {
+const Block = ({ blockData, hashData, setParentState, setNewHash }) => {
   let hashClass = "text-center mx-3 ";
   let cardClass = "card text-center col-md-6 my-5 p-0 shadow mb-5 rounded ";
-  console.log(blockdata);
-  let isChanged = !blockdata.curr.startsWith("0000");
+  console.log(blockData);
+  let isChanged = !hashData.curr.startsWith("0000");
   if (isChanged) {
     hashClass += "text-danger";
     cardClass += "border-danger";
@@ -16,64 +16,48 @@ const Block = ({ blockdata, children, setChildBlock, childBlock }) => {
 
   const mineHash = () => {
     let hashElements = getHashElements(
-      blockdata.id,
-      blockdata.data,
-      blockdata.prev
+      blockData.id,
+      blockData.data,
+      hashData.prev
     );
-    setChildBlock(
-      childBlock.map((block) =>
-        block.id === blockdata.id
-          ? {
-              ...block,
-              curr: hashElements.hash,
-              nonce: hashElements.nonce,
-            }
-          : block
-      )
-    );
+    setNewHash(hashElements, blockData.id);
   };
 
-  const updateBlock = (e, id) => {
-    console.log(id);
+  const updateBlock = (e) => {
     let data = e.target.value;
-    setChildBlock(
-      childBlock.map((block) =>
-        block.id === id
-          ? {
-              ...block,
-              data: data,
-              curr: getHash(data, block.data, block.prev, id),
-            }
-          : block
-      )
-    );
+    let currHash = getHash(data, blockData.nonce, hashData.prev, blockData.id);
+    const newBlock = {
+      id: blockData.id,
+      data: data,
+    };
+    setParentState(newBlock, currHash);
   };
 
   return (
     <div className={cardClass}>
       <div className="card-footer ">
-        <strong>Block ID : {blockdata.id}</strong>
+        <strong>Block ID : {blockData.id}</strong>
       </div>
       <div className="card-body">
         <div className="d-flex justify-content-between align-items-center mb-2">
           <div className=" card-text">Data</div>
-          {blockdata.id === 0 ? (
-            <div className="form-control text-muted mx-3">{blockdata.data}</div>
+          {blockData.id === 0 ? (
+            <div className="form-control text-muted mx-3">{blockData.data}</div>
           ) : (
             <input
               className="form-control mx-3"
-              onChange={(e) => updateBlock(e, blockdata.id)}
-              value={blockdata.data}
+              onChange={(e) => updateBlock(e)}
+              value={blockData.data}
             ></input>
           )}
         </div>
         <div className="d-flex justify-content-between align-items-center mb-2">
           <small className=" card-text">Hash</small>
-          <small className={hashClass}>{blockdata.curr}</small>
+          <small className={hashClass}>{hashData.curr}</small>
         </div>
         <div className="d-flex justify-content-between align-items-center mb-2">
           <small className=" card-text">Previous Hash</small>
-          <small className={hashClass}>{blockdata.prev}</small>
+          <small className={hashClass}>{hashData.prev}</small>
         </div>
       </div>
       <div className="card-header ">
@@ -91,7 +75,7 @@ const Block = ({ blockdata, children, setChildBlock, childBlock }) => {
               data-toggle="tooltip"
               title="Nonce"
             >
-              {blockdata.nonce}
+              {blockData.nonce}
             </div>
           </div>
         </div>
